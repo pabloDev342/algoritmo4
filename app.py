@@ -1,31 +1,18 @@
-class Cancion:
-    def __init__(self, titulo, artista, duracion_segundos):
-        self.titulo = titulo
-        self.artista = artista
-        self.duracion_segundos = duracion_segundos
-        self.siguiente = None
-        self.anterior = None
+def permutaciones(lista):
 
-class ListaReproduccion:
-    def __init__(self):
-        self.cabeza = None
-        self.actual = None
+    if len(lista) <= 1:
+        return [lista]
+    
+    resultado = []
 
-    def agregar_cancion(self, titulo, artista, duracion_segundos):
-        nueva = Cancion(titulo, artista, duracion_segundos)
+    for i in range (len(lista)):
 
-        if self.cabeza is None:
-            self.cabeza = nueva
-            self.actual = nueva
-        else:
-            temp = self.cabeza
-            while temp.siguiente:
-                temp = temp.siguiente
-            temp.siguiente = nueva
-            nueva.anterior = temp
+        elemento = lista[i]
 
-    def mostrar_lista(self):
-        temp = self.cabeza
-        while temp:
-            print(f"{temp.titulo} - {temp.artista} ({temp.duracion_segundos}s)")
-            temp = temp.siguiente
+        resto = lista[:i] + lista[i+1:]
+
+        for perm in permutaciones (resto):
+            resultado.append([elemento] + perm)
+
+    return resultado
+print(permutaciones([1,2,3,]))
