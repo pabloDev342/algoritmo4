@@ -1,18 +1,17 @@
-def permutaciones(lista):
+datos = [5, 3, 8, 1, 2, 9, 4]
 
-    if len(lista) <= 1:
-        return [lista]
-    
-    resultado = []
+import heapq
 
-    for i in range (len(lista)):
+heapq.heapify(datos)
+print("heap", datos)
 
-        elemento = lista[i]
+heapq.heappush(datos, 6)
+print("heap despues de agregar 6:", datos)
 
-        resto = lista[:i] + lista[i+1:]
+minimo =  heapq.heappop(datos)
+print("elemento ,minimo extraido", minimo)
+print("heap despues de extraer el minimo", datos)
 
-        for perm in permutaciones (resto):
-            resultado.append([elemento] + perm)
-
-    return resultado
-print(permutaciones([1,2,3,]))
+datos2 = [(2, 'A'), (4, 'B'), (3,'C'), (2,'D'), (12, 'E')]
+heapq.heapify(datos2)
+print ("heap of tuples", datos2)
