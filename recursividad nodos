@@ -1,213 +1,303 @@
-# ============================================================
-# PUNTO 1a: CLASE NODO (CLIENTE)
-# ============================================================
+# ==========================================================
+# 1. CLASE NODO
+# ==========================================================
 
 class Nodo:
+
     def __init__(self, nombre, tipo, tiempo):
-        # Información del cliente
+
+        # Guardamos el nombre del cliente
         self.nombre = nombre
+
+        # Guardamos el tipo:
+        # "preferencial" o "normal"
         self.tipo = tipo
+
+        # Guardamos cuánto demora su atención
         self.tiempo = tiempo
 
-        # Apunta al siguiente cliente
+        # Aquí vamos a guardar el siguiente cliente
+        #
+        # Al principio no hay siguiente cliente,
+        # por eso empieza en None.
         self.siguiente = None
 
 
-# ============================================================
-# PUNTO 1b: CLASE COLA
-# ============================================================
+# ==========================================================
+# 2. CLASE COLA
+# ==========================================================
 
 class Cola:
+
     def __init__(self):
-        # Inicio de la cola
+
+        # "inicio" apunta al primer cliente.
+        #
+        # Al comenzar no tenemos clientes,
+        # entonces la cola está vacía.
         self.inicio = None
 
 
-    # ========================================================
-    # PUNTO 2: AGREGAR CLIENTE - RECURSIVO
-    # ========================================================
+    # ======================================================
+    # 3. AGREGAR CLIENTE
+    # ======================================================
 
     def agregar(self, nombre, tipo, tiempo):
 
+        # Primero creamos un nuevo nodo
         nuevo = Nodo(nombre, tipo, tiempo)
 
-        # ----------------------------------------------------
-        # Si es preferencial:
-        # Los preferenciales siempre deben estar al inicio.
-        # Por eso el nuevo queda antes de los demás.
-        # ----------------------------------------------------
+
+        # --------------------------------------------------
+        # SI EL CLIENTE ES PREFERENCIAL
+        # --------------------------------------------------
+
         if tipo == "preferencial":
 
-            # Usamos una función recursiva para encontrar
-            # la posición correspondiente dentro de la cola.
-            self._buscar_posicion_preferencial(self.inicio)
+            # El nuevo cliente apunta al que actualmente
+            # estaba primero.
+            #
+            # Ejemplo:
+            #
+            # Antes:
+            # Juan -> Pedro
+            #
+            # Entra Maria:
+            #
+            # Maria -> Juan -> Pedro
 
             nuevo.siguiente = self.inicio
+
+            # Ahora Maria se convierte en el primer cliente
             self.inicio = nuevo
 
-        # ----------------------------------------------------
-        # Si es normal:
-        # Debe ir al FINAL de la cola.
-        # ----------------------------------------------------
+
+        # --------------------------------------------------
+        # SI EL CLIENTE ES NORMAL
+        # --------------------------------------------------
+
         elif tipo == "normal":
 
-            self.inicio = self._insertar_normal_recursivo(
-                self.inicio, nuevo
+            # Los normales deben ir al FINAL.
+            #
+            # Para encontrar el final vamos a usar
+            # una función RECURSIVA.
+            self.inicio = self.insertar_final(
+                self.inicio,
+                nuevo
             )
 
-        else:
-            print("Tipo de atención no válido")
 
+    # ======================================================
+    # 4. INSERTAR AL FINAL - RECURSIVO
+    # ======================================================
 
-    # --------------------------------------------------------
-    # Función recursiva auxiliar para preferenciales
-    # --------------------------------------------------------
+    def insertar_final(self, actual, nuevo):
 
-    def _buscar_posicion_preferencial(self, actual):
+        # -------- CASO BASE --------
+        #
+        # Si actual es None significa que llegamos
+        # al final de la cola.
+        #
+        # Ejemplo:
+        #
+        # Juan -> Pedro -> None
+        #                 ↑
+        #              llegamos aquí
+        #
+        # Entonces colocamos el nuevo nodo aquí.
 
-        # CASO BASE:
-        # Si no hay nodo o encontramos el primer normal,
-        # estamos en el límite de la zona preferencial.
-        if actual is None or actual.tipo == "normal":
-            return
-
-        # CASO RECURSIVO:
-        # Avanzamos por la zona de preferenciales.
-        self._buscar_posicion_preferencial(actual.siguiente)
-
-
-    # --------------------------------------------------------
-    # Función recursiva para insertar normales al final
-    # --------------------------------------------------------
-
-    def _insertar_normal_recursivo(self, actual, nuevo):
-
-        # CASO BASE:
-        # Llegamos a una posición vacía.
-        # Aquí colocamos el nuevo cliente.
         if actual is None:
+
             return nuevo
 
-        # CASO RECURSIVO:
-        # Seguimos buscando el último nodo.
-        actual.siguiente = self._insertar_normal_recursivo(
-            actual.siguiente, nuevo
+
+        # -------- LLAMADA RECURSIVA --------
+        #
+        # Si todavía no estamos al final,
+        # avanzamos al siguiente nodo.
+
+        actual.siguiente = self.insertar_final(
+            actual.siguiente,
+            nuevo
         )
+
+
+        # Devolvemos el nodo actual para no perder
+        # la conexión de la cola.
 
         return actual
 
 
-    # ========================================================
-    # PUNTO 3: TIEMPO DE ESPERA - RECURSIVO
-    # ========================================================
+    # ======================================================
+    # 5. CALCULAR TIEMPO DE ESPERA - RECURSIVO
+    # ======================================================
 
     def tiempo_espera(self, nombre):
 
-        # Llamamos a una función recursiva.
-        return self._calcular_espera_recursivo(
-            self.inicio, nombre, 0
+        # Empezamos desde el primer cliente.
+        #
+        # El acumulado comienza en 0 porque todavía
+        # no hemos pasado por ningún cliente.
+
+        return self.calcular_espera(
+            self.inicio,
+            nombre,
+            0
         )
 
 
-    def _calcular_espera_recursivo(self, actual, nombre, acumulado):
+    def calcular_espera(self, actual, nombre, acumulado):
 
-        # ----------------------------------------------------
-        # CASO BASE 1:
-        # Llegamos al final y no encontramos al cliente.
-        # ----------------------------------------------------
+        # -------- CASO BASE --------
+        #
+        # Si llegamos al final y no encontramos
+        # al cliente, devolvemos -1.
+        #
+        # Esto es exactamente lo que pide el examen.
+
         if actual is None:
+
             return -1
 
-        # ----------------------------------------------------
-        # CASO BASE 2:
-        # Encontramos al cliente.
+
+        # -------- CASO BASE --------
         #
-        # El acumulado contiene el tiempo de todos los
-        # clientes que estaban antes.
-        # ----------------------------------------------------
+        # Si encontramos al cliente que estamos buscando,
+        # devolvemos el tiempo que llevamos acumulado.
+
         if actual.nombre == nombre:
+
             return acumulado
 
-        # ----------------------------------------------------
-        # CASO RECURSIVO:
-        # Avanzamos al siguiente cliente y sumamos el tiempo
-        # del cliente actual.
-        # ----------------------------------------------------
-        return self._calcular_espera_recursivo(
+
+        # -------- RECURSIVIDAD --------
+        #
+        # Todavía no encontramos al cliente.
+        #
+        # Entonces:
+        #
+        # 1. Pasamos al siguiente cliente.
+        # 2. Sumamos el tiempo del cliente actual.
+
+        return self.calcular_espera(
             actual.siguiente,
             nombre,
             acumulado + actual.tiempo
         )
 
 
-    # ========================================================
-    # PUNTO 4: ATENDER SIGUIENTE
-    # ========================================================
+    # ======================================================
+    # 6. ATENDER AL PRIMER CLIENTE
+    # ======================================================
 
     def atender(self):
 
-        # Si la cola está vacía
+        # Primero preguntamos:
+        #
+        # ¿La cola está vacía?
+        #
+        # Si inicio es None, no hay nadie.
+
         if self.inicio is None:
+
             return None
 
-        # Guardamos el cliente que está primero
+
+        # Guardamos el primer cliente
+        # antes de quitarlo.
+
         atendido = self.inicio
 
-        # El segundo cliente pasa a ser el primero
+
+        # Ahora el segundo cliente pasa a ser
+        # el primero.
+
         self.inicio = self.inicio.siguiente
 
-        # Desconectamos el cliente atendido de la cola
+
+        # Desconectamos al cliente atendido
+        # de la cola.
+
         atendido.siguiente = None
+
+
+        # Devolvemos el cliente que atendimos.
 
         return atendido
 
 
-    # ========================================================
-    # PUNTO 5: CONTAR POR TIPO - RECURSIVO
-    # ========================================================
+    # ======================================================
+    # 7. CONTAR PREFERENCIALES Y NORMALES - RECURSIVO
+    # ======================================================
 
     def contar_por_tipo(self):
 
-        return self._contar_recursivo(self.inicio)
+        # Comenzamos desde el primer nodo.
+
+        return self.contar_recursivo(self.inicio)
 
 
-    def _contar_recursivo(self, actual):
+    def contar_recursivo(self, actual):
 
-        # ----------------------------------------------------
-        # CASO BASE:
-        # Llegamos al final.
+        # -------- CASO BASE --------
+        #
+        # Si no hay nodo, significa que terminamos.
         #
         # Retornamos:
+        #
         # (preferenciales, normales)
-        # ----------------------------------------------------
+        #
+        # Al principio hay 0 y 0.
+
         if actual is None:
+
             return (0, 0)
 
-        # ----------------------------------------------------
-        # Llamada recursiva para contar los siguientes nodos.
-        # ----------------------------------------------------
-        preferenciales, normales = self._contar_recursivo(
+
+        # -------- RECURSIVIDAD --------
+        #
+        # Primero contamos todos los clientes
+        # que vienen después.
+
+        preferenciales, normales = self.contar_recursivo(
             actual.siguiente
         )
 
-        # Sumamos el tipo del nodo actual
+
+        # Cuando la función comienza a regresar,
+        # revisamos el cliente actual.
+
         if actual.tipo == "preferencial":
+
             preferenciales += 1
+
         elif actual.tipo == "normal":
+
             normales += 1
+
+
+        # Devolvemos los dos contadores.
 
         return (preferenciales, normales)
 
 
-    # ========================================================
-    # MOSTRAR COLA
-    # ========================================================
+    # ======================================================
+    # 8. MOSTRAR LA COLA
+    # ======================================================
 
     def mostrar(self):
 
+        # Comenzamos desde el primer cliente.
+
         actual = self.inicio
 
+
+        # Mientras exista un cliente,
+        # seguimos recorriendo.
+
         while actual is not None:
+
             print(
                 actual.nombre,
                 "-",
@@ -217,50 +307,78 @@ class Cola:
                 "minutos"
             )
 
+
+            # Pasamos al siguiente cliente.
+
             actual = actual.siguiente
 
 
-# ============================================================
-# PRUEBAS
-# ============================================================
+# ==========================================================
+# 9. PROBAR EL PROGRAMA
+# ==========================================================
 
-if __name__ == "__main__":
+cola = Cola()
 
-    cola = Cola()
 
-    # Agregar clientes
-    cola.agregar("Juan", "normal", 10)
-    cola.agregar("María", "preferencial", 5)
-    cola.agregar("Pedro", "normal", 15)
-    cola.agregar("Ana", "preferencial", 8)
+# Agregamos un cliente normal
+cola.agregar("Juan", "normal", 10)
 
-    # Orden esperado:
-    # Ana, María, Juan, Pedro
-    #
-    # OJO:
-    # Como cada nuevo preferencial se coloca al inicio,
-    # Ana queda antes que María.
+# Agregamos un preferencial
+cola.agregar("Maria", "preferencial", 5)
 
-    print("COLA:")
-    cola.mostrar()
+# Otro normal
+cola.agregar("Pedro", "normal", 15)
 
-    # Tiempo de espera de Pedro
-    print(
-        "Espera de Pedro:",
-        cola.tiempo_espera("Pedro")
-    )
+# Otro preferencial
+cola.agregar("Ana", "preferencial", 8)
 
-    # Contar tipos
-    print(
-        "Por tipo:",
-        cola.contar_por_tipo()
-    )
 
-    # Atender siguiente
-    atendido = cola.atender()
+# ==========================================================
+# 10. MOSTRAR LA COLA
+# ==========================================================
 
-    if atendido is not None:
-        print(
-            "Atendido:",
-            atendido.nombre
-        )
+print("COLA:")
+
+cola.mostrar()
+
+
+# ==========================================================
+# 11. TIEMPO DE ESPERA
+# ==========================================================
+
+print()
+
+print("Tiempo de espera de Pedro:")
+
+print(
+    cola.tiempo_espera("Pedro")
+)
+
+
+# ==========================================================
+# 12. CONTAR CLIENTES
+# ==========================================================
+
+print()
+
+print("Clientes por tipo:")
+
+print(
+    cola.contar_por_tipo()
+)
+
+
+# ==========================================================
+# 13. ATENDER
+# ==========================================================
+
+print()
+
+print("Cliente atendido:")
+
+atendido = cola.atender()
+
+
+if atendido is not None:
+
+    print(atendido.nombre)
