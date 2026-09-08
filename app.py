@@ -1,17 +1,106 @@
-datos = [5, 3, 8, 1, 2, 9, 4]
+# ==========================================
+# CLASE NODO
+# ==========================================
 
-import heapq
+class Nodo:
 
-heapq.heapify(datos)
-print("heap", datos)
+    def __init__(self, nota):
 
-heapq.heappush(datos, 6)
-print("heap despues de agregar 6:", datos)
+        # Guardamos la nota
+        self.nota = nota
 
-minimo =  heapq.heappop(datos)
-print("elemento ,minimo extraido", minimo)
-print("heap despues de extraer el minimo", datos)
+        # Apunta al siguiente nodo
+        self.siguiente = None
 
-datos2 = [(2, 'A'), (4, 'B'), (3,'C'), (2,'D'), (12, 'E')]
-heapq.heapify(datos2)
-print ("heap of tuples", datos2)
+
+# ==========================================
+# CLASE LISTA
+# ==========================================
+
+class Lista:
+
+    def __init__(self):
+
+        # Inicio de la lista
+        self.inicio = None
+
+
+    # ======================================
+    # AGREGAR
+    # ======================================
+
+    def agregar(self, nota):
+
+        # Crear un nodo nuevo
+        nuevo = Nodo(nota)
+
+        # El nuevo nodo apunta al primero
+        nuevo.siguiente = self.inicio
+
+        # El nuevo nodo se convierte en el primero
+        self.inicio = nuevo
+
+
+    # ======================================
+    # MOSTRAR
+    # ======================================
+
+    def mostrar(self):
+
+        # Empezamos desde el inicio
+        actual = self.inicio
+
+        # Recorremos la lista
+        while actual is not None:
+
+            print("Nota:", actual.nota)
+
+            # Pasamos al siguiente
+            actual = actual.siguiente
+
+
+    # ======================================
+    # SUMAR NOTAS - RECURSIVO
+    # ======================================
+
+    def sumar(self):
+
+        # Empezamos desde el inicio
+        return self._sumar(self.inicio)
+
+
+    def _sumar(self, nodo):
+
+        # CASO BASE
+        # Si no existe nodo, terminamos
+        if nodo is None:
+            return 0
+
+        # Sumamos la nota actual
+        # y seguimos con el siguiente
+        return nodo.nota + self._sumar(nodo.siguiente)
+
+
+# ==========================================
+# PROGRAMA PRINCIPAL
+# ==========================================
+
+lista = Lista()
+
+# Agregamos las notas
+lista.agregar(3.0)
+lista.agregar(4.0)
+lista.agregar(5.0)
+lista.agregar(4.5)
+
+
+# Mostrar las notas
+print("NOTAS:")
+
+lista.mostrar()
+
+
+# Sumar las notas
+print("\nSUMA DE LAS NOTAS:")
+
+print(lista.sumar())
